@@ -146,13 +146,19 @@ public class BlockExporter {
 
         pendingNbtRequestsMap.put(id, nextPos);
 
-        ServerboundBlockEntityTagQueryPacket packet = new ServerboundBlockEntityTagQueryPacket(id, nextPos);
-        player.connection.send(packet);
+        if (player.clientLevel.getBlockEntity(nextPos) != null) {
+            ServerboundBlockEntityTagQueryPacket packet = new ServerboundBlockEntityTagQueryPacket(id, nextPos);
+            player.connection.send(packet);
+        } else {
+            processNbtResponse(player.clientLevel, id, null);
+        }
     }
 
     public static void processNbtResponse(ClientLevel world, int id, CompoundTag nbt) {
         Minecraft client = Minecraft.getInstance();
-        if (client.player == null) return;
+        if (client.player == null) {
+            return;
+        }
 
         BlockPos pos = pendingNbtRequestsMap.remove(id);
 
